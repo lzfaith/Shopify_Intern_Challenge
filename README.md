@@ -294,7 +294,7 @@ Date: Mon, 21 Jan 2019 02:55:55 GMT
 }
 ```
 
-* add(1)/remove(-1) product(s) in shopping cart with cart id by following command:
+* Add(1)/remove(-1) product(s) in shopping cart with cart id by following command:
 ```bash
 $ curl -i http://localhost:5000/api/v1.0/shopping_carts
 HTTP/1.0 200 OK
