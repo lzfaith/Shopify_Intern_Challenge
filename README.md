@@ -20,7 +20,7 @@
 
 ## Implementing Restful services in Python and Flask
 
-The products and shopping_carts will used HTTP methods as follow:
+##### The products and shopping_carts will used HTTP methods as follow:
 |  HTTP Method  |  URl  |  Examples  |
 |:-------------:|:--------:|:----------:|
 |      GET      |  http://[hostname]/api/v1.0/products?avaliable=True |  Retrieve  list of products with avaliable inventory |
