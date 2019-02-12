@@ -18,7 +18,7 @@
 
 ***
 
-## Implementing Restful services in Python and Flask
+## Implementing Restful services in Python and Flask:
 
 ##### The products and shopping_carts will used HTTP methods as follow:
 |  HTTP Method  |  URl  |  Examples  |
@@ -32,43 +32,25 @@
 |     POST      |  http://[hostname]/api/v1.0/shopping_carts          | Create a new Shopping_cart |
 |    DELETE     |  http://[hostname]/api/v1.0/shopping_carts/[cart_id]          | Delete a shopping_cart |
  
-I will store our products and shopping_carts in a memory structrue. It runs the application is single thread and proccess. *It is inappropriate to develop it on a production web server, a proper databse setup must be used.*
+## Database:
 
- ```Python
-products = {
-    1: {
-        'title': 'Apple',
-        'price': 20,
-        'inventory': 5,
-    }
-}
+* The Sqlite will be applied
 
-shopping_carts = {
-    1: {
-        'products': {1: 1, 3: 2}
-    }
-}
-}
- ```
- 
- To run application we have to execute web_api.py:
- ```
- FLASK_APP = web_api.py
-FLASK_ENV = development
-FLASK_DEBUG = 1
-In folder D:/pythonFiles/Shopify_Challenge
-D:\Anaconda3\envs\Shopify\python.exe -m flask run
- * Serving Flask app "web_api.py" (lazy loading)
- * Environment: development
- * Debug mode: on
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 347-854-976
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
- ```
 
-The __curl__ will be used for test web server, the command will be provided in each example. 
+|  Table  |    |    |   |     |     |   
+|:-------------:|:--------:|:----------:|:----------:|:----------:|:----------:|
+|      product      |  id(primary)  |  title  |  price  |  inventory  |  relationships <br/>  __relationship('Relationship', backref='product', primaryjoin=id == Relationship.product_id)__  |
+|      shoppingcart  |  id(primary)  |  relationships <br/>  __relationship('Relationship', backref='product', primaryjoin=id == Relationship.shoppingcart_id)__  | 
+|      product_shoppingcart   |    shoppingcart_id(primary) <br/> __ForeignKey('product.id')__     |     product_id(primary) <br/> __ForeignKey('shoppingcart.id')__     |     quantity    | 
+
+
  ***
+
+
+## Testing:
+
+The __curl__ will be used for test web server, the command will be provided in each example
+
 
 ### Fetch one product or many products: 
 
@@ -79,30 +61,32 @@ The __curl__ will be used for test web server, the command will be provided in e
 $ curl -i http://localhost:5000/api/v1.0/products
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 276
+Content-Length: 316
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:00:47 GMT
+Date: Tue, 12 Feb 2019 05:16:53 GMT
 
 {
-  "products": {
-    "1": {
+  "products": [
+    {
+      "id": 1,
       "inventory": 5,
-      "price": 20,
+      "price": 30.0,
       "title": "Apple"
     },
-    "2": {
-      "inventory": 2,
-      "price": 13,
+    {
+      "id": 2,
+      "inventory": 1,
+      "price": 20.0,
       "title": "Bear"
     },
-    "3": {
+    {
+      "id": 3,
       "inventory": 0,
-      "price": 100,
-      "title": "Desk"
+      "price": 10.0,
+      "title": "Orange"
     }
-  }
+  ]
 }
-
 ```
 
 * Fetch one product by the following command：
@@ -111,14 +95,15 @@ Date: Mon, 21 Jan 2019 02:00:47 GMT
 $ curl -i http://localhost:5000/api/v1.0/products/1
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 83
+Content-Length: 99
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:14:41 GMT
+Date: Tue, 12 Feb 2019 05:14:36 GMT
 
 {
   "product": {
+    "id": 1,
     "inventory": 5,
-    "price": 20,
+    "price": 30.0,
     "title": "Apple"
   }
 }
@@ -129,23 +114,25 @@ Date: Mon, 21 Jan 2019 02:14:41 GMT
 $ curl -i http://localhost:5000/api/v1.0/products?avaliable=true
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 191
+Content-Length: 217
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:29:40 GMT
+Date: Tue, 12 Feb 2019 05:17:53 GMT
 
 {
-  "products": {
-    "1": {
+  "products": [
+    {
+      "id": 1,
       "inventory": 5,
-      "price": 20,
+      "price": 30.0,
       "title": "Apple"
     },
-    "2": {
-      "inventory": 2,
-      "price": 13,
+    {
+      "id": 2,
+      "inventory": 1,
+      "price": 20.0,
       "title": "Bear"
     }
-  }
+  ]
 }
 ```
 
@@ -155,42 +142,43 @@ Date: Mon, 21 Jan 2019 02:29:40 GMT
 $ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"purchase"}' http://localhost:5000/api/v1.0/products/1
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 102
+Content-Length: 118
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:35:46 GMT
+Date: Tue, 12 Feb 2019 06:26:49 GMT
 
 {
   "product": {
+    "id": 1,
     "inventory": 4,
-    "price": 20,
+    "price": 30.0,
     "title": "Apple"
   },
   "result": true
 }
 
-
-$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"purchase"}' http://localhost:5000/api/v1.0/products/3
+# if the inventory is zero, then it will show its out of stock
+curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"purchase"}' http://localhost:5000/api/v1.0/products/3
 HTTP/1.0 409 CONFLICT
 Content-Type: application/json
-Content-Length: 132
+Content-Length: 149
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:37:00 GMT
+Date: Tue, 12 Feb 2019 06:27:51 GMT
 
 {
   "product": {
+    "id": 3,
     "inventory": 0,
-    "price": 100,
-    "title": "Desk"
+    "price": 10.0,
+    "title": "Orange"
   },
   "reason": "out of stock",
   "result": false
 }
-
 ```
 
 ***
 ### Shopping carts
-#### Example:
+#### Examples:
 
 * Create Shopping cart with one or more products by following command:
 
@@ -198,215 +186,157 @@ Date: Mon, 21 Jan 2019 02:37:00 GMT
 $ curl -i -H "Content-Type: application/json" -X POST -d '{"products":{"1": 2, "2": 3}}' http://localhost:5000/api/v1.0/shopping_carts
 HTTP/1.0 201 CREATED
 Content-Type: application/json
-Content-Length: 126
+Content-Length: 114
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:43:14 GMT
+Date: Tue, 12 Feb 2019 06:29:56 GMT
 
 {
   "result": true,
   "shopping_cart": {
+    "id": 1,
     "products": {
       "1": 2,
       "2": 3
     }
-  },
-  "shopping_cart_id": 2
+  }
+}
+
+# if the product is not exist, it will show unknown product
+curl -i -H "Content-Type: application/json" -X POST -d '{"products":{"4": 2}}' http://localhost:5000/api/v1.0/shopping_carts
+HTTP/1.0 409 CONFLICT
+Content-Type: application/json
+Content-Length: 56
+Server: Werkzeug/0.14.1 Python/3.6.8
+Date: Tue, 12 Feb 2019 06:30:59 GMT
+
+{
+  "reason": "Unknown product 4",
+  "result": false
 }
 ```
 
-* Get the list of shopping carts by following command:
+* Get the list of shopping carts by following command <br/> 
+* Get shopping cart by cart id:
 ```bash
 $ curl -i http://localhost:5000/api/v1.0/shopping_carts
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 265
+Content-Length: 191
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:45:25 GMT
+Date: Tue, 12 Feb 2019 06:32:26 GMT
 
 {
-  "shopping_carts": {
-    "1": {
-      "products": {
-        "1": 1,
-        "3": 2
-      }
-    },
-    "2": {
+  "shopping_carts": [
+    {
+      "id": 1,
       "products": {
         "1": 2,
         "2": 3
       }
+    },
+    {
+      "id": 2,
+      "products": {
+        "3": 1
+      }
+    }
+  ]
+}
+
+curl -i http://localhost:5000/api/v1.0/shopping_carts/1
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 95
+Server: Werkzeug/0.14.1 Python/3.6.8
+Date: Tue, 12 Feb 2019 06:33:02 GMT
+
+{
+  "shopping_cart": {
+    "id": 1,
+    "products": {
+      "1": 2,
+      "2": 3
     }
   }
 }
 ```
 
-* Get total price of shopping_cart with cart id by the following command:
 
-```bash
-$ curl -i http://localhost:5000/api/v1.0/shopping_carts/1
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 104
-Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:51:44 GMT
-
-{
-  "shopping_cart": {
-    "products": {
-      "1": 1,
-      "3": 2
-    }
-  },
-  "total_price": 220
-}
-```
-
-* Delete the shopping cart with cart id by the following command:
+* Remove the shopping cart by cart id by the following command:
 ```bash
 $ curl -i -H "Content-Type: application/json" -X DELETE http://localhost:5000/api/v1.0/shopping_carts/1
 HTTP/1.0 200 OK
 Content-Type: application/json
 Content-Length: 21
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:55:42 GMT
+Date: Tue, 12 Feb 2019 06:36:01 GMT
 
 {
   "result": true
 }
 
+# After remove the shopping card #1, then it only left the shopping cart #2
 $ curl -i http://localhost:5000/api/v1.0/shopping_carts
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 186
+Content-Length: 101
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 02:55:55 GMT
+Date: Tue, 12 Feb 2019 06:36:18 GMT
 
 {
-  "shopping_carts": {
-    "2": {
+  "shopping_carts": [
+    {
+      "id": 2,
       "products": {
-        "1": 2,
-        "2": 3
+        "3": 1
       }
     }
-  }
+  ]
 }
 ```
 
 * Add(1)/remove(-1) product(s) in shopping cart with cart id by following command:
 ```bash
-$ curl -i http://localhost:5000/api/v1.0/shopping_carts
+# Add one apple into the shopping card
+$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"add_product", "products":{"1":1}}' http://localhost:5000/api/v1.0/shopping_carts/2
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 107
+Content-Length: 114
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:33:23 GMT
-
-{
-  "shopping_carts": {
-    "1": {
-      "products": {
-        "1": 1,
-        "3": 2
-      }
-    }
-  }
-}
-
-$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"add_product", "products":{"1":-1}}' http://localhost:5000/api/v1.0/shopping_carts/1
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 85
-Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:33:34 GMT
+Date: Tue, 12 Feb 2019 06:38:57 GMT
 
 {
   "result": true,
   "shopping_cart": {
+    "id": 2,
     "products": {
-      "3": 2
+      "1": 1,
+      "3": 1
     }
   }
 }
 
-$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"add_product", "products":{"2":1}}' http://localhost:5000/api/v1.0/shopping_carts/1
+# Remove one orange in shopping card #2
+$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"add_product", "products":{"3":-1}}' http://localhost:5000/api/v1.0/shopping_carts/2
 HTTP/1.0 200 OK
 Content-Type: application/json
-Content-Length: 100
+Content-Length: 99
 Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:34:36 GMT
+Date: Tue, 12 Feb 2019 06:41:02 GMT
 
 {
   "result": true,
   "shopping_cart": {
-    "products": {
-      "2": 1,
-      "3": 2
-    }
-  }
-}
-```
-
-* Compelete shopping cart with purchasing, if the product with unavaliable inventory, it cannot be compeleted:
-```bash
-$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"purchase"}' http://localhost:5000/api/v1.0/shopping_carts/1
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 51
-Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:36:09 GMT
-
-{
-  "reason": "out of stock",
-  "result": false
-}
-```
-
-* If the product with avaliable inventory, the process will finish and remove the shopping cart:
-```bash
-$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"add_product", "products":{"3":-1}}' http://localhost:5000/api/v1.0/shopping_carts/1
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 85
-Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:41:27 GMT
-
-{
-  "result": true,
-  "shopping_cart": {
+    "id": 2,
     "products": {
       "1": 1
     }
   }
 }
-$ curl -i -H "Content-Type: application/json" -X PUT -d '{"action":"purchase"}' http://localhost:5000/api/v1.0/shopping_carts/1
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 21
-Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:41:35 GMT
-
-{
-  "result": true
-}
-$ curl -i http://localhost:5000/api/v1.0/shopping_carts
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 27
-Server: Werkzeug/0.14.1 Python/3.6.8
-Date: Mon, 21 Jan 2019 03:41:39 GMT
-
-{
-  "shopping_carts": {}
-}
-
 ```
-
 
  ***
 
 #### Continuing....
 
-1. Using proper set up database
-2. Using lock to ensure syncrhonization
+1. Purchase all products in shopping cart
